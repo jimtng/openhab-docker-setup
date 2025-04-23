@@ -25,7 +25,11 @@ conf userdata
 unset DEST_DIR
 ```
 
-Note you can create and send this tarball backup over ssh to another host too.
+Note you can create and send this tarball backup over ssh to another host too, e.g.:
+
+```shell
+tar -czf - .... | ssh user@host "cat > /path/to/target"
+```
 
 ### Restore a tarball backup
 
