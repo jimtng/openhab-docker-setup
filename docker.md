@@ -8,6 +8,20 @@ docker compose ps
 
 This command is similar to the unix `ps` command.
 
+## Seeing container logs
+
+If your container doesn't start up properly, e.g. keeps rebooting, you can see its log to find out what's wrong.
+
+```shell
+docker compose logs zigbee2mqtt
+```
+
+For more options:
+
+```shell
+docker compose logs --help
+```
+
 ## Stopping/Starting a Container
 
 ```shell
