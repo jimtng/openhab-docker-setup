@@ -126,7 +126,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./.ssh:/openhab/.ssh
+      # This only works if your real user is also openhab
+      # - ./.ssh:/openhab/.ssh
       - ./.karaf:/openhab/.karaf
       - ./conf:/openhab/conf
       - ./userdata:/openhab/userdata
@@ -192,7 +193,7 @@ You need to set up the dongle/serial port mapping.
 Read up on how to configure Zigbee2MQTT from <https://www.zigbee2mqtt.io/guide/installation/02_docker.html>,
 especially about configuring the serial port to communicate with yout zigbee dongle.
 
-The Zigbee2MQTT config file is located in `zigbee2mqtt/configuration.yaml
+The Zigbee2MQTT config file is located in `zigbee2mqtt/configuration.yaml`
 
 ## More Tips
 
