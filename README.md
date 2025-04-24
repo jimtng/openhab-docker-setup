@@ -79,8 +79,9 @@ sudo usermod -aG docker $USER
 newgrp docker
 ```
 
+Then do the next command to revert the main group back.
+
 ```sh
-# But revert to my main group
 newgrp
 [ $(id -u) == $(id -g) ] || echo "Warning: the current gid doesn't match your uid. Don't proceed. Try rebooting."
 ```
