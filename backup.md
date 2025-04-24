@@ -1,10 +1,14 @@
 # Backup/Restore
 
-To back up your openhab, simply backup the `~/openhab/conf` and `~/openhab/userdata` using whatever means you prefer. You don't need to stop openhab prior to taking a backup.
+To have a complete backup, include the following files/directories:
 
-Tip: exclude `~/openhab/userdata/backup` from your backup.
+- Backup `compose.yml`
+- `openhab/conf`
+- `openhab/userdata`
+- `mosquitto/mosquitto.conf`
+- `zigbee2mqtt/configuration.yaml`
 
-Examples:
+A backup can be performed while openhab is still running.
 
 ## Backup with Tar
 
@@ -13,15 +17,15 @@ Examples:
 ```shell
 DEST_DIR=~/backups
 mkdir -p $DEST_DIR
-cd ~/openhab
+cd
 tar --verbose -czf $DEST_DIR/openhab_backup-$(date +'%Y-%m-%d').tgz \
 --exclude=.git \
---exclude=conf/automation/ruby/.gem \
---exclude=userdata/backup \
---exclude=userdata/piper \
---exclude=userdata/cache \
---exclude=userdata/tmp \
-conf userdata
+--exclude=openhab/conf/automation/ruby/.gem \
+--exclude=openhab/userdata/backup \
+--exclude=openhab/userdata/piper \
+--exclude=openhab/userdata/cache \
+--exclude=openhab/userdata/tmp \
+compose.yml openhab/conf openhab/userdata mosquitto/mosquitto.conf zigbee2mqtt/configuration.yaml
 unset DEST_DIR
 ```
 
@@ -36,8 +40,7 @@ tar -czf - .... | ssh user@host "cat > /path/to/target"
 Beware not to overwrite existing installation. Make a copy of `conf` and `userdata` folder first, if you're unsure.
 
 ```shell
-cd ~/openhab
-tar -xf ~/backups/<tarballname>
+tar -C $HOME -xf ~/backups/<tarballname>
 ```
 
 ## Rsync
@@ -47,9 +50,7 @@ tar -xf ~/backups/<tarballname>
 For example, we keep a backup copy in `~/backup`. Ideally this is located on a different disk, or over the network onto another machine.
 
 ```shell
-DEST_DIR=~/backup
-mkdir -p $DEST_DIR
-cd ~/openhab
+cd
 rsync -av --delete \
 --exclude=.git \
 --exclude=conf/automation/ruby/.gem \
@@ -57,8 +58,11 @@ rsync -av --delete \
 --exclude=userdata/piper \
 --exclude=userdata/cache \
 --exclude=userdata/tmp \
-conf userdata $DEST_DIR
-unset DEST_DIR
+--include=mosquitto/mosquitto.conf \
+--exclude=mosquitto/* \
+--include=zigbee2mqtt/configuration.yaml \
+--exclude=zigbee2mqtt/* \
+compose.yml openhab mosquitto zigbee2mqtt ~/backup
 ```
 
 [Back to main](README.md)
