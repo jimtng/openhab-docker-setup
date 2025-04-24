@@ -9,46 +9,41 @@ This is a set of step-by-step copy-pasteable instructions to install openHAB as 
 
 This guide works on a clean, minimal install of Ubuntu 24, but it should also work on a working full installation and possibly also on other versions of Debian based Linux.
 
+Contents:
+
 - [Expected Outcome](#expected-outcome)
 - [Install Docker](#install-docker)
-- [Create openhab user](#create-openhab-user)
-- [Create Mosquitto Config](#create-mosquitto-config)
-- [Create docker-compose.yaml](#create-docker-composeyaml)
+- [Create compose.yml](#create-composeyml)
+- [Create Directories and Config Files](#create-directories-and-config-files)
 - [Start up the Docker Containers](#start-up-the-docker-containers)
-- [Your Next Steps](#your-next-steps)
-  - [Configure Mosquitto](#configure-mosquitto)
-  - [Configure Zigbee2MQTT](#configure-zigbee2mqtt)
+- [Access openHAB's Web Interface](#access-openhabs-web-interface)
+- [Configure Zigbee2MQTT](#configure-zigbee2mqtt)
 - [More Tips](#more-tips)
 
 ## Expected Outcome
 
-The steps in this guide will aim to create the following files and directories in your home directory:
-
-- `docker-compose.yaml`
-- `mosquitto/`
-  - `mosquitto.conf`
-- `zigbee2mqtt/`
-  - `configuration.yaml`
-- `openhab/`
-  - `conf/`
-  - `addons/`
-  - `userdata/`
-
-You can create a special user in your system to host/run these docker containers if you would like to separate them from your main user's home directory, but this isn't covered in this guide.
-
-Users created on your system:
-
-- `docker` created by docker installation
-- `openhab:openhab` with a specific uid: 9001 and gid: 9001
-
-Your current user will be added to the `docker` and `openhab` groups.
+- Docker and its dependencies installed
+- 3 docker containers created
+  - `openhab`
+  - `mosquitto`
+  - `zigbee2mqtt`
+- The containers will run under your UID and GID. This is to make it easier to manage file permissions inside and outside the containers.
+- Directories / Files created:
+  - `compose.yml`
+  - `openhab/`
+    - `conf/` - the main openHAB's configuration folder, often referred to as `$OPENHAB_CONF`
+    - `userdata/` - this is openHAB's internal storage for your instance, often referred to as `$OPENHAB_USERDATA`
+    - `addons/` - this is where you can put custom add-on jar files to load into openHAB
+  - `mosquitto/`
+    - `mosquitto.conf`
+  - `zigbee2mqtt/`
+    - `configuration.yaml`
+- Your unix user will be included in the `docker` group
+- Zigbee2MQTT will not be fully configured yet. You'll need to finish configuring it to connect your Zigbee dongle.
 
 The commands in this guide will not overwrite your existing files, so if something isn't working, ensure that the file contents are correct.
 
-By the end of this guide, you'll have docker up and running with a fresh installation of openHAB, Mosquitto and Zigbee2MQTT.
-You'll need to finish configuring Zigbee2MQTT to connect your Zigbee dongle.
-
-If you don't need/use Zigbee, edit docker-compose.yaml and remove the zigbee section.
+If you don't need/use Zigbee, edit `compose.yml` and remove the zigbee section.
 
 ## Install Docker
 
@@ -71,68 +66,49 @@ sudo apt-get update
 
 # Install the latest Docker version
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
 ```
 
-Post install steps, modified from <https://docs.docker.com/engine/install/linux-postinstall/>
+Docker post install steps
 
 ```shell
 # Create the docker group if it does not exist
 getent group docker || sudo groupadd docker
-# This will add the current user to the docker group
+# add the current user to the docker group
 sudo usermod -aG docker $USER
+# Load the new group
 newgrp docker
 ```
 
-## Create openhab user
-
 ```shell
-sudo groupadd --gid 9001 openhab
-sudo useradd -r -s /sbin/nologin --uid 9001 --gid 9001 openhab
-sudo usermod -aG openhab $USER
+# But revert to my main group
+newgrp
+[ $(id -u) == $(id -g) ] || echo "Warning: the current gid doesn't match your uid. Don't proceed. Try rebooting."
 ```
 
-You'll see a warning like this, it can be ignored:
-
-> useradd warning: openhab's uid 9001 is greater than SYS_UID_MAX 999
-
-## Create Mosquitto Config
+## Create compose.yml
 
 ```shell
-cd
-mkdir -p mosquitto
-[ -f mosquitto/mosquitto.conf ] || cat <<-EOF > mosquitto/mosquitto.conf
-per_listener_settings true
-
-port 1883
-protocol mqtt
-allow_anonymous true
-allow_zero_length_clientid true
-connection_messages true    
-EOF
-```
-
-## Create docker-compose.yaml
-
-```shell
-cd
-[ -f docker-compose.yaml ] || cat <<EOF > docker-compose.yaml
+GID=$(id -g)
+[ -f compose.yml ] && echo Warning: compose.yml already exists || cat <<EOF > compose.yml
 services:
   openhab:
     image: openhab/openhab:latest
+    # image: openhab/openhab:milestone
+    # image: openhab/openhab:snapshot
     container_name: openhab
     restart: always
     network_mode: host
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      # This only works if your real user is also openhab
-      # - ./.ssh:/openhab/.ssh
+      - ./.ssh:/openhab/.ssh
       - ./.karaf:/openhab/.karaf
-      - ./conf:/openhab/conf
-      - ./userdata:/openhab/userdata
-      - ./addons:/openhab/addons
+      - ./openhab/conf:/openhab/conf
+      - ./openhab/userdata:/openhab/userdata
+      - ./openhab/addons:/openhab/addons
     environment:
+      USER_ID: ${UID}
+      GROUP_ID: ${GID}
       # Adjust accordingly
       OPENHAB_HTTP_PORT: 8080
       OPENHAB_HTTPS_PORT: 8443
@@ -145,6 +121,7 @@ services:
     restart: always
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    user: "${UID}:${GID}"
     ports:
       # These ports should not be changed unless absolutely necessary
       - "1883:1883"
@@ -154,6 +131,8 @@ services:
     image: koenkk/zigbee2mqtt:latest
     container_name: zigbee2mqtt
     restart: always
+    # Make it run as the openhab user too
+    user: "${UID}:${GID}"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -167,6 +146,23 @@ services:
     depends_on:
       - mosquitto
 EOF
+unset GID
+[ -f docker-compose.yaml ] && echo Warning: docker-compose.yaml exists. compose.yml will take precedence.
+```
+
+## Create Directories and Config Files
+
+```shell
+mkdir -p openhab mosquitto zigbee2mqtt
+[ -f mosquitto/mosquitto.conf ] || cat <<-EOF > mosquitto/mosquitto.conf
+per_listener_settings true
+
+port 1883
+protocol mqtt
+allow_anonymous true
+allow_zero_length_clientid true
+connection_messages true    
+EOF
 ```
 
 ## Start up the Docker Containers
@@ -175,17 +171,26 @@ EOF
 docker compose up -d
 ```
 
-## Your Next Steps
+Check to see if the containers are running
 
-### Configure Mosquitto
+```shell
+docker compose ps
+```
 
-At this point, Mosquitto will start and work just fine without requiring SSL certificate nor any authentications.
+Set the mqtt host in Zigbee2mqtt config:
 
-- You may want to adjust Mosquitto config (optional) to:
-  - Set up username/password authentication
-  - Optionally set SSL Certificate for mosquitto
+```shell
+sed -i 's#mqtt://localhost:#mqtt://mosquitto:#' zigbee2mqtt/configuration.yaml
+docker compose restart zigbee2mqtt
+```
 
-### Configure Zigbee2MQTT
+Congratulations! You've now got openHAB up and running!
+
+## Access openHAB's Web Interface
+
+You should now be able to access openHAB's web interface on <http://your.server.ip:8080/>
+
+## Configure Zigbee2MQTT
 
 At this point Zigbee2MQTT isn't fuly configured.
 You need to set up the dongle/serial port mapping.
@@ -198,5 +203,7 @@ The Zigbee2MQTT config file is located in `zigbee2mqtt/configuration.yaml`
 ## More Tips
 
 - [Working with Docker, Upgrading/Downgrading](docker.md)
+- [Working with openHAB](openhab.md)
 - [Working with MQTT / Mosquitto](mosquitto.md)
 - [Backup/Restore](backup.md)
+- [How to delete docker images](docker-cleanup.md)
