@@ -103,7 +103,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./.ssh:/openhab/.ssh
-      - ./.karaf:/openhab/.karaf
+      - ./openhab/.karaf:/openhab/.karaf
       - ./openhab/conf:/openhab/conf
       - ./openhab/userdata:/openhab/userdata
       - ./openhab/addons:/openhab/addons
