@@ -49,7 +49,7 @@ If you don't need/use Zigbee, edit `compose.yml` and remove the zigbee section.
 
 The following instructions were copied from <https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository>
 
-```shell
+```sh
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
@@ -70,7 +70,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 Docker post install steps
 
-```shell
+```sh
 # Create the docker group if it does not exist
 getent group docker || sudo groupadd docker
 # add the current user to the docker group
@@ -79,7 +79,7 @@ sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-```shell
+```sh
 # But revert to my main group
 newgrp
 [ $(id -u) == $(id -g) ] || echo "Warning: the current gid doesn't match your uid. Don't proceed. Try rebooting."
@@ -87,7 +87,7 @@ newgrp
 
 ## Create compose.yml
 
-```shell
+```sh
 GID=$(id -g)
 [ -f compose.yml ] && echo Warning: compose.yml already exists || cat <<EOF > compose.yml
 services:
@@ -152,7 +152,7 @@ unset GID
 
 ## Create Directories and Config Files
 
-```shell
+```sh
 mkdir -p openhab mosquitto zigbee2mqtt
 [ -f mosquitto/mosquitto.conf ] || cat <<-EOF > mosquitto/mosquitto.conf
 per_listener_settings true
@@ -167,19 +167,19 @@ EOF
 
 ## Start up the Docker Containers
 
-```shell
+```sh
 docker compose up -d
 ```
 
 Check to see if the containers are running
 
-```shell
+```sh
 docker compose ps
 ```
 
 Set the mqtt host in Zigbee2mqtt config:
 
-```shell
+```sh
 sed -i 's#mqtt://localhost:#mqtt://mosquitto:#' zigbee2mqtt/configuration.yaml
 docker compose restart zigbee2mqtt
 ```

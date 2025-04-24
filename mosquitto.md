@@ -2,7 +2,7 @@
 
 ## List the number of MQTT Clients connected to the broker
 
-```shell
+```sh
 docker compose exec mosquitto mosquitto_sub -v -C 1 -t '$SYS/broker/clients/total'
 ```
 
@@ -10,19 +10,19 @@ docker compose exec mosquitto mosquitto_sub -v -C 1 -t '$SYS/broker/clients/tota
 
 All zigbee2mqtt's traffic:
 
-```shell
+```sh
 docker compose exec mosquitto mosquitto_sub -v -t 'zigbee2mqtt/#'
 ```
 
 Or a specific device
 
-```shell
+```sh
 docker compose exec mosquitto mosquitto_sub -v -t 'zigbee2mqtt/livingroom-light/#'
 ```
 
 ## Publish an MQTT Message
 
-```shell
+```sh
 docker compose exec mosquitto mosquitto_pub -t 'some/topic/to/publish/to' -m 'data'
 ```
 

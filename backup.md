@@ -14,7 +14,7 @@ A backup can be performed while openhab is still running.
 
 ### Create a tarball backup
 
-```shell
+```sh
 DEST_DIR=~/backups
 mkdir -p $DEST_DIR
 cd
@@ -31,7 +31,7 @@ unset DEST_DIR
 
 Note you can create and send this tarball backup over ssh to another host too, e.g.:
 
-```shell
+```sh
 tar -czf - .... | ssh user@host "cat > /path/to/target"
 ```
 
@@ -39,7 +39,7 @@ tar -czf - .... | ssh user@host "cat > /path/to/target"
 
 Beware not to overwrite existing installation. Make a copy of `conf` and `userdata` folder first, if you're unsure.
 
-```shell
+```sh
 tar -C $HOME -xf ~/backups/<tarballname>
 ```
 
@@ -49,7 +49,7 @@ tar -C $HOME -xf ~/backups/<tarballname>
 
 For example, we keep a backup copy in `~/backup`. Ideally this is located on a different disk, or over the network onto another machine.
 
-```shell
+```sh
 cd
 rsync -av --delete \
 --exclude=.git \

@@ -2,7 +2,7 @@
 
 ## Showing Container Status
 
-```shell
+```sh
 docker compose ps
 ```
 
@@ -12,19 +12,19 @@ This command is similar to the unix `ps` command.
 
 If your container doesn't start up properly, e.g. keeps rebooting, you can see its log to find out what's wrong.
 
-```shell
+```sh
 docker compose logs zigbee2mqtt
 ```
 
 For more options:
 
-```shell
+```sh
 docker compose logs --help
 ```
 
 ## Stopping/Starting a Container
 
-```shell
+```sh
 docker compose [start|stop|restart] <containername>
 
 # for example
@@ -41,7 +41,7 @@ docker compose restart openhab
 
 Because in the example, all the images are set to `:latest`, you can upgrade them by issuing the following command:
 
-```shell
+```sh
 # Upgrade openhab to the latest stable version
 docker compose pull openhab
 # After upgrading, reload must be done.
@@ -68,7 +68,7 @@ To downgrade openHAB to version 4.3.1 instead of the latest stable version, edit
 
 Then do:
 
-```shell
+```sh
 docker compose up -d openhab
 ```
 

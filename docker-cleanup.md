@@ -2,7 +2,7 @@
 
 ## Remove docker containers
 
-```shell
+```sh
 docker compose stop
 # Remove ALL containers in compose.yml
 docker compose rm
@@ -13,13 +13,13 @@ docker compose rm
 
 List the images
 
-```shell
+```sh
 docker compose image ls | egrep 'zigbee2mqtt|openhab|mosquitto'
 ```
 
 If you are sure those images are the ones to be removed:
 
-```shell
+```sh
 # Remove them
 docker image ls | egrep 'zigbee2mqtt|openhab|mosquitto' | awk '{print $3}' | xargs docker image rm
 ```

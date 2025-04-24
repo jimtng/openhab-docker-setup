@@ -15,7 +15,7 @@ See <https://www.openhab.org/docs/administration/console.html>
 
 You can view openHAB's log file in the following directory:
 
-```shell
+```sh
 tail -f ~/openhab/userdata/logs/openhab.log
 ```
 
@@ -26,7 +26,7 @@ This operation is perfectly safe, although it causes openHAB to take longer to s
 
 Steps to clear openhab's cache:
 
-```shell
+```sh
 docker compose stop
 rm -rf ~/openhab/userdata/cache/* ~/openhab/userdata/tmp/*
 docker compose start
@@ -36,13 +36,13 @@ docker compose start
 
 This will bring you into the openhab's runtime environment, as root.
 
-```shell
+```sh
 docker exec openhab bash
 ```
 
 To become the `openhab` user inside the container:
 
-```shell
+```sh
 su - openhab
 ```
 
