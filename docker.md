@@ -30,7 +30,7 @@ docker compose [start|stop|restart] <containername>
 # for example
 docker compose stop openhab
 
-# To stop all containers listed in your docker-compose.yaml file;
+# To stop all containers listed in your compose.yml file;
 docker compose stop
 
 # to restart
@@ -50,13 +50,13 @@ docker compose up -d openhab
 
 The same can be done for mosquitto / other containers.
 
-## Making Changes to docker-compose.yaml
+## Making Changes to compose.yml
 
 If you modified the docker-compose.yaml file, run `docker compose up -d` to reload the changes. Simply restarting the docker container won't read the new changes.
 
 ## Downgrading To an Older / Specific Version
 
-To downgrade openHAB to version 4.3.1 instead of the latest stable version, edit docker-compose.yaml, comment the `:latest` line and add:
+To downgrade openHAB to version 4.3.1 instead of the latest stable version, edit compose.yml, comment the `:latest` line and add:
 
 ```yaml
     # image: openhab/openhab:latest
