@@ -2,9 +2,8 @@
 
 To have a complete backup, include the following files/directories:
 
-- Backup `compose.yml`
-- `openhab/conf`
-- `openhab/userdata`
+- `compose.yml`
+- `openhab/` with some exclusions
 - `mosquitto/mosquitto.conf`
 - `zigbee2mqtt/configuration.yaml`
 
@@ -25,7 +24,7 @@ tar --verbose -czf $DEST_DIR/openhab_backup-$(date +'%Y-%m-%d').tgz \
 --exclude=openhab/userdata/piper \
 --exclude=openhab/userdata/cache \
 --exclude=openhab/userdata/tmp \
-compose.yml openhab/conf openhab/userdata mosquitto/mosquitto.conf zigbee2mqtt/configuration.yaml
+compose.yml openhab mosquitto/mosquitto.conf zigbee2mqtt/configuration.yaml
 unset DEST_DIR
 ```
 
